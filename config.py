@@ -30,6 +30,9 @@ class Config:
     MYSQLDBName = "Avengers"
     MYSQL_user_name = "tonystart"
     MYSQL_password = "jarvis"
+    SQLALCHEMY_DATABASE_URI =  "postgres://postgres:postgres@127.0.0.1:5432/temp"
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
 
 class DevelopmentConfig(Config):
     DEBUG = True

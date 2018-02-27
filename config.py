@@ -32,6 +32,7 @@ class Config:
     MYSQL_password = "jarvis"
     SQLALCHEMY_DATABASE_URI =  "postgres://postgres:postgres@127.0.0.1:5432/temp"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    secret_key_for_access_tokens = "HulkTheStrongestAvenger"
 
 
 class DevelopmentConfig(Config):

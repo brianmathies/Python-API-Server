@@ -1,5 +1,5 @@
 import json
-import uuid
+import uuid, hashlib
 from datetime import datetime
 
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
@@ -13,13 +13,17 @@ class User(db.Model):
     id = Column(String(32), primary_key=True, unique=True)
     name = Column(String(200), nullable=False, primary_key=True)
     email = Column(String(200), nullable=False, primary_key=True)
+    password_hash = db.Column(db.String(255), nullable=False)
+    salt = db.Column(db.String(255), nullable=False)
     created_at = Column(DateTime)
 
-    def __init__(self, name, email):
+    def __init__(self, name, email, password):
         self.created_at = datetime.utcnow()
         self.id = str(uuid.uuid4().hex)
         self.name = name
         self.email = email
+        self.salt = uuid.uuid4().hex
+        self.password_hash = User.hash_password(salt=self.salt, password=password)
 
     def to_json(self):
         return {
@@ -28,6 +32,16 @@ class User(db.Model):
             "email": self.email
         }
 
+    def check_password(self,password):
+        current_password = self.hash_password(self.salt, password)
+        if(current_password == self.password_hash):
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def hash_password(salt, password):
+        return hashlib.sha512((password + salt).encode('utf-8')).hexdigest()
 
 class AccessToken(db.Model):
     __tablename__ = "accesstokens"
@@ -48,7 +62,7 @@ class AccessToken(db.Model):
 
     def generate_auth_token(self, expiration_time = 36000):
         s = Serializer(Config.secret_key_for_access_tokens, expires_in=expiration_time)
-        return s.dumps({"id": self.id})
+        return s.dumps({"id": self.id}).decode()
 
     @staticmethod
     def verify_my_access_token(token):

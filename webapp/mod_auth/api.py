@@ -21,20 +21,20 @@ def login_user():
     password = password=data["password"]
     user = webdb.session.query(User).filter_by(email=data["email"]).first()
     if not user:
-        Response.status = 404
-        Response.data = "Invalid User"
-        return Response
+        return Response(json.dumps({"result": "no user"}) , status=404 , mimetype='application/json')
     if not user.check_password(password):
-        return Response == 404
-        Response.data = "Invalid Password"
-        return Response
+        return Response(json.dumps({"result": "wrong password"}) , status=404 , mimetype='application/json')
+
 
     token = AccessToken(user_id=user.id)
     token_string = token.generate_auth_token(expiration_time=3000)
+    user.accesstokens.append(token)
     user_json = user.to_json()
     user_json["token"] = token_string
     user_json = jsonify(user_json)
+    webdb.session.commit()
     return user_json
 
-@mod_auth.route("/access_token",methods)
+# @mod_auth.route("/access_token",methods=["post"])
+# def verify_access_token():
 

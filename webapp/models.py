@@ -5,6 +5,7 @@ from datetime import datetime
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 from sqlalchemy import Column, Enum, Float, Integer, String, Boolean, ForeignKey, UniqueConstraint, DateTime, \
     Text, PrimaryKeyConstraint
+from sqlalchemy.orm import relationship
 from webapp import db
 from config import Config
 
@@ -16,6 +17,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(255), nullable=False)
     salt = db.Column(db.String(255), nullable=False)
     created_at = Column(DateTime)
+    accesstokens = relationship("AccessToken" ,back_populates="users")
 
     def __init__(self, name, email, password):
         self.created_at = datetime.utcnow()
@@ -45,9 +47,10 @@ class User(db.Model):
 
 class AccessToken(db.Model):
     __tablename__ = "accesstokens"
-    id = Column(Integer, primary_key=True)
+    id = Column(String(32), primary_key=True)
     user_id = Column(String(32), ForeignKey("users.id"), nullable=False)
     issued_at = Column(DateTime)
+    users = relationship("User" , back_populates="accesstokens")
 
     def __init__(self, user_id):
         self.id = str(uuid.uuid4().hex)

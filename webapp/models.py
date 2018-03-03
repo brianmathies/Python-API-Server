@@ -68,7 +68,7 @@ class AccessToken(db.Model):
         return s.dumps({"id": self.id}).decode()
 
     @staticmethod
-    def verify_my_access_token(token):
+    def verify_my_access(token):
         s = Serializer(Config.secret_key_for_access_tokens)
         try :
             data = s.load(token)
@@ -87,14 +87,14 @@ class AccessToken(db.Model):
     def verify_my_access_token(token):
         s = Serializer(Config.secret_key_for_access_tokens)
         try :
-            data = s.load(token)
+            data = s.loads(token)
         except SignatureExpired:
-            return "Signature Expired"
+            return ({"status": 404,"result": "Signature Expired"})
         except BadSignature:
-            return "Bad user"
+            return ({"status": 404,"result": "Bad User"})
 
-        token = AccessToken.query.get(data[id])
+        token = AccessToken.query.get(data["id"])
         if not token:
-            return "No tokens"
+            return ({"status": 404,"result": "No tokens for user"})
 
-        return token
+        return ({"status": 200,"result": token})

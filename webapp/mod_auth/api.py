@@ -17,8 +17,8 @@ def register_user():
 @mod_auth.route("/login", methods=["post"])
 def login_user():
     data = request.get_json(force=True)
-    email = email=data["email"]
-    password = password=data["password"]
+    email = data["email"]
+    password = data["password"]
     user = webdb.session.query(User).filter_by(email=data["email"]).first()
     if not user:
         return Response(json.dumps({"result": "no user"}) , status=404 , mimetype='application/json')
@@ -35,6 +35,10 @@ def login_user():
     webdb.session.commit()
     return user_json
 
-# @mod_auth.route("/access_token",methods=["post"])
-# def verify_access_token():
-
+@mod_auth.route("/access_token",methods=["post"])
+def verify_access_token():
+    data = request.get_json(force=True)
+    token_result = AccessToken.verify_my_access_token(data["accesstoken"])
+    if(token_result["status"] != 200):
+        return Response(json.dumps({"result": token_result["result"]}), status=404, mimetype='application/json')
+    return Response(json.dumps({"result": token_result["result"].id}), status=200, mimetype='application/json')

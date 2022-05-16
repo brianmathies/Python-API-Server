@@ -22,7 +22,7 @@ def post():
 
     x = json.loads(b64, object_hook=lambda d: SimpleNamespace(**d))
     b64_text = str(x.payload)
-    print(b64_text)
+    # print(b64_text)
     decodedData = base64.b64decode(b64_text)
     outdir = os.getcwd()
 
@@ -32,7 +32,7 @@ def post():
     with open(wavfile, 'wb') as file:
         file.write(decodedData)
     exe_path = 'C:\\Users\\brianmathies\\git\\allosaurus\\allosaurus\\output\\convert_phonemes\\convert_phonemes.exe'
-    os.system('python -m allosaurus.run -l eng -i {0} -o {1}'.format(wavfile, phoneme_file))
+    os.system('python -m allosaurus.run -e 1.0 -i {0} -o {1}'.format(wavfile, phoneme_file))
 
     phonemes = ''
     with open(phoneme_file, 'r', encoding='utf-8') as file:
